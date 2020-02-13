@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="static/vendors/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="static/vendors/leaflet/leaflet.css">
+    <link rel="stylesheet" href="static/css/main.css">
+    <title>Home | MapMyLoRa</title>
+  </head>
+  <body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="#">MapMyLoRa</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+              
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div id="mapid" style="width: 100%; height: calc(100% - 56px);;"></div>
+
+    <script src="static/vendors/jquery/jquery-3.4.1.min.js"></script>
+    <script src="static/vendors/bootstrap/js/bootstrap.min.js"></script>
+    <script src="static/vendors/leaflet/leaflet.js"></script>
+
+    <script>
+		var mymap = L.map('mapid', {
+			zoomControl: false,
+			attributionControl:false
+		}).setView([43.619684, 1.356497], 13);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
+            attribution: '',
+            minZoom: 5,
+            maxZoom: 20
+        }).addTo(mymap);
+
+        var gateways = JSON.parse({{ gw | tojson }});
+        gateways.forEach(gateway => L.marker([gateway.lat, gateway.lon]).addTo(mymap));
+
+    </script>
+  </body>
+</html>
