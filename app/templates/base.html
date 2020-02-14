@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="static/vendors/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="static/vendors/leaflet/leaflet.css">
+    <link rel="stylesheet" href="static/vendors/tempusdominus/css/tempusdominus-bootstrap-4.min.css" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="static/css/main.css">
+    <title>Home | MapMyLoRa</title>
+  </head>
+  <body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="#">MapMyLoRa</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+              
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <div class="form-inline ml-auto">
+                <div class="input-group date" id="from_datetime_picker" data-target-input="nearest">
+                    <input type="text" class="form-control datetimepicker-input" data-target="#from_datetime_picker"/>
+                    <div class="input-group-append" data-target="#from_datetime_picker" data-toggle="datetimepicker">
+                        <div class="input-group-text">From</div>
+                    </div>
+                </div>
+                <div class="input-group date ml-3" id="to_datetime_picker" data-target-input="nearest">
+                    <input type="text" class="form-control datetimepicker-input" data-target="#to_datetime_picker"/>
+                    <div class="input-group-append" data-target="#to_datetime_picker" data-toggle="datetimepicker">
+                        <div class="input-group-text">To</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div id="mapid" style="width: 100%; height: calc(100% - 56px);"></div>
+
+    <script src="static/vendors/jquery/jquery-3.4.1.min.js"></script>
+    <script src="static/vendors/bootstrap/js/bootstrap.min.js"></script>
+    <script src="static/vendors/leaflet/leaflet.js"></script>
+    <script src="static/vendors/momentjs/js/moment-with-locales.js"></script>
+    <script src="static/vendors/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
+
+    <script>
+      var mymap = L.map('mapid', {}).setView([43.619684, 1.356497], 13);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: ''
+      }).addTo(mymap);
+
+      heatmap_layer = L.layerGroup([]).addTo(mymap);
+
+      {#
+      var gateways = JSON.parse({{ gateways | tojson }});
+      gateways.forEach(function(gateway) 
+      {
+        L.marker([gateway.lat, gateway.lon]).addTo(mymap);
+      });
+      #}
+
+      var trackers_list = JSON.parse({{ trackers | tojson }});
+
+      var from_date = null;
+      var to_date = null;
+
+      function show_trackers()
+      {
+        heatmap_layer.clearLayers();
+
+        var add_layer;
+        trackers_list.forEach(function(tracker) 
+        {
+          const point_datetime = new Date(tracker.time);
+
+          add_layer = true;
+          if( from_date != null && (point_datetime < from_date) )
+          {
+            add_layer = false;
+          }
+
+          if( to_date != null && (point_datetime > to_date) )
+          {
+            add_layer = false;
+          }
+
+          if( add_layer )
+          {
+
+            if(tracker.GW_rssi != null)
+            {
+              if (tracker.GW_rssi > -55 && tracker.GW_rssi < -30)
+              {
+                var deviceCircle = L.circle([tracker.latitude, tracker.longitude], {color: '#FF0000', radius: 50});
+                deviceCircle.addTo(heatmap_layer);
+              }
+                  
+              if (tracker.GW_rssi > -70 && tracker.GW_rssi < -55)
+              {
+                var deviceCircle = L.circle([tracker.latitude, tracker.longitude], {color: '#FF7F00', radius: 50});
+                deviceCircle.addTo(heatmap_layer);
+              }
+                  
+              if (tracker.GW_rssi > -85 && tracker.GW_rssi < -70)
+              {
+                var deviceCircle = L.circle([tracker.latitude, tracker.longitude], {color: '#FFFF00', radius: 50});
+                deviceCircle.addTo(heatmap_layer);
+              }
+                  
+              if (tracker.GW_rssi > -100 && tracker.GW_rssi < -85)
+              {
+                var deviceCircle = L.circle([tracker.latitude, tracker.longitude], {color: '#00FF00', radius: 50});
+                deviceCircle.addTo(heatmap_layer);
+              }
+                  
+              if (tracker.GW_rssi > -115 && tracker.GW_rssi < -100)
+              {
+                var deviceCircle = L.circle([tracker.latitude, tracker.longitude], {color: '#00FFFF', radius: 50});
+                deviceCircle.addTo(heatmap_layer);
+              }
+                  
+              if (tracker.GW_rssi > -130 && tracker.GW_rssi < -115)
+              {
+                var deviceCircle = L.circle([tracker.latitude, tracker.longitude], {color: '#0000FF', radius: 50});
+                deviceCircle.addTo(heatmap_layer);
+              }
+            }
+
+          }
+        });
+      }
+
+      show_trackers();
+
+      $('#from_datetime_picker').datetimepicker({
+        locale: 'fr'
+      });
+
+      $('#from_datetime_picker').on("change.datetimepicker", (e) => {
+        from_date = e.date;
+        show_trackers();
+      });
+
+      $('#to_datetime_picker').datetimepicker({
+        locale: 'fr'
+      });
+
+      $('#to_datetime_picker').on("change.datetimepicker", (e) => {
+        to_date = e.date;
+        show_trackers();
+      });
+    </script>
+  </body>
+</html>
