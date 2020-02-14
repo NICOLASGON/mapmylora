@@ -20,7 +20,23 @@
               
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <div class="form-inline ml-auto">
-                <div class="input-group date" id="from_datetime_picker" data-target-input="nearest">
+                <div class="input-group">
+                    <select class="custom-select" id="inputGroupSelect01">
+                      <option selected>All</option>
+                    </select>
+                    <div class="input-group-append">
+                      <label class="input-group-text" for="inputGroupSelect01">Tracker</label>
+                    </div>
+                </div>
+                <div class="input-group ml-3">
+                    <select class="custom-select" id="inputGroupSelect02">
+                      <option selected>All</option>
+                    </select>
+                    <div class="input-group-append">
+                      <label class="input-group-text" for="inputGroupSelect02">Gateway</label>
+                    </div>
+                </div>
+                <div class="input-group date ml-3" id="from_datetime_picker" data-target-input="nearest">
                     <input type="text" class="form-control datetimepicker-input" data-target="#from_datetime_picker"/>
                     <div class="input-group-append" data-target="#from_datetime_picker" data-toggle="datetimepicker">
                         <div class="input-group-text">From</div>
@@ -53,15 +69,23 @@
 
       heatmap_layer = L.layerGroup([]).addTo(mymap);
 
-      {#
       var gateways = JSON.parse({{ gateways | tojson }});
       gateways.forEach(function(gateway) 
       {
         L.marker([gateway.lat, gateway.lon]).addTo(mymap);
+        $("#inputGroupSelect02").append("<option>" + gateway.name + "</option>");
       });
-      #}
 
       var trackers_list = JSON.parse({{ trackers | tojson }});
+      var trackers_name = new Map();
+      trackers_list.forEach(function(tracker)
+      {
+        if( trackers_name.has(tracker.name_1) == false )
+        {
+          trackers_name.set(tracker.name_1, tracker.name_1);
+          $("#inputGroupSelect01").append("<option>" + tracker.name_1 + "</option>");
+        }
+      });
 
       var from_date = null;
       var to_date = null;

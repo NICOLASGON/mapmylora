@@ -2,7 +2,6 @@ from flask import Flask, render_template
 import simplejson as json
 import os
 
-import settings as settings
 from gateways import fetch_gateways
 from trackers import fetch_trackers
 

@@ -1,6 +1,5 @@
 from flask import current_app as app
 from influxdb import InfluxDBClient
-import settings as settings
 
 def fetch_trackers():
     client = InfluxDBClient(app.config['INFLUXDB_HOSTNAME'], 
