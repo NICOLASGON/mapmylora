@@ -20,21 +20,8 @@
               
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <div class="form-inline ml-auto">
-                <div class="input-group">
-                    <select class="custom-select" id="inputGroupSelect01">
-                      <option selected>All</option>
-                    </select>
-                    <div class="input-group-append">
-                      <label class="input-group-text" for="inputGroupSelect01">Tracker</label>
-                    </div>
-                </div>
                 <div class="input-group ml-3">
-                    <select class="custom-select" id="inputGroupSelect02">
-                      <option selected>All</option>
-                    </select>
-                    <div class="input-group-append">
-                      <label class="input-group-text" for="inputGroupSelect02">Gateway</label>
-                    </div>
+						<button class="nav-link" type="button" onClick="javascript:show_gateway()">Afficher/Masquer les antennes</button>
                 </div>
                 <div class="input-group date ml-3" id="from_datetime_picker" data-target-input="nearest">
                     <input type="text" class="form-control datetimepicker-input" data-target="#from_datetime_picker"/>
@@ -63,19 +50,37 @@
     <script>
       var mymap = L.map('mapid', {}).setView([43.619684, 1.356497], 13);
 
+	  var myIconBlack = L.icon({
+                        iconUrl: "../static/images/Noir_Gateway.png",
+                        iconSize: [40, 40],
+                        iconAnchor: [20, 20],
+                        popupAnchor: [-3, -76],
+                    }); 
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           attribution: ''
       }).addTo(mymap);
 
       heatmap_layer = L.layerGroup([]).addTo(mymap);
-
-      var gateways = JSON.parse({{ gateways | tojson }});
-      gateways.forEach(function(gateway) 
-      {
-        L.marker([gateway.lat, gateway.lon]).addTo(mymap);
-        $("#inputGroupSelect02").append("<option>" + gateway.name + "</option>");
-      });
-
+	  
+	  var appuie = Boolean(false);
+	  
+	  function show_gateway() {
+		if (appuie) {
+			location.reload();
+			appuie = false;
+		} else {
+			var gateways = JSON.parse({{ gateways | tojson }});
+			gateways.forEach(function(gateway) 
+			{
+				L.marker([gateway.lat, gateway.lon],{icon: myIconBlack}).addTo(mymap);
+				//$("#inputGroupSelect02").append("<option>" + gateway.name + "</option>");
+			});
+			appuie = true;
+		}
+	  }
+	  
+	  
+     
       var trackers_list = JSON.parse({{ trackers | tojson }});
       var trackers_name = new Map();
       trackers_list.forEach(function(tracker)
@@ -89,7 +94,13 @@
 
       var from_date = null;
       var to_date = null;
-
+	  /*function circle(){
+        var rayon = 2;
+        gateways.forEach(
+            var circle = L.circle([gateway.lat, gateway.lon], {color: '#00FF00', radius: rayon*1000});
+            circle.addTo(mymap);
+            );
+      }*/
       function show_trackers()
       {
         heatmap_layer.clearLayers();
